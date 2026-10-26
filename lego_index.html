@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>레고벤져스 캐릭터 도감</title>
+<style>
+:root { color-scheme: dark; --bg:#101522; --panel:#1b2436; --panel2:#28354c; --line:#3b4964; --text:#f4f6ff; --muted:#b5c0d4; --gold:#f5c451; --blue:#91c8ff; --green:#9ce5ac; }
+* { box-sizing:border-box; }
+body { margin:0; padding:24px; font-family:Arial,"Malgun Gothic",sans-serif; background:var(--bg); color:var(--text); }
+.container { max-width:1050px; margin:auto; }
+header { text-align:center; margin:8px 0 24px; }
+h1 { color:var(--gold); margin-bottom:8px; }
+.subtitle { color:var(--muted); }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px; margin:16px 0; }
+.controls { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; }
+label { display:block; color:var(--muted); font-size:13px; margin-bottom:7px; }
+select { width:100%; padding:12px; border-radius:9px; border:1px solid #52617d; background:#101522; color:white; font-size:15px; }
+h2 { margin:0 0 14px; font-size:21px; }
+h3 { color:var(--blue); font-size:16px; margin:0 0 8px; }
+.hero { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+.hero h2 { font-size:27px; color:var(--gold); margin-bottom:7px; }
+.pill { display:inline-block; background:#34435e; padding:5px 9px; border-radius:999px; font-size:12px; margin:3px 5px 3px 0; color:#e4edff; }
+.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:10px; margin-top:18px; }
+.stat { background:var(--panel2); padding:14px; border-radius:11px; min-height:78px; }
+.stat small { display:block; color:var(--muted); margin-bottom:8px; }
+.stat strong { font-size:22px; color:var(--gold); overflow-wrap:anywhere; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:12px; }
+.card { background:#202c40; border:1px solid #34415b; border-radius:12px; padding:15px; }
+.card p { line-height:1.55; margin:7px 0 0; }
+.kind { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
+strong { color:var(--blue); }
+.muted { color:var(--muted); line-height:1.55; }
+.status { padding:10px 12px; border-radius:9px; margin:8px 0; background:#26364a; }
+.unlocked { color:var(--green); }
+.locked { color:#ffaaaa; }
+.gear-name { color:var(--gold); font-weight:bold; }
+.note { border-left:3px solid var(--gold); padding:9px 12px; background:#222e42; color:var(--muted); line-height:1.55; border-radius:0 8px 8px 0; }
+footer { color:var(--muted); text-align:center; font-size:12px; padding:16px; }
+@media (max-width:600px) { body { padding:12px; } .panel { padding:15px; } .hero h2 { font-size:23px; } }
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>⚙️ 레고벤져스 캐릭터 도감</h1>
+  <div class="subtitle">캐릭터 · 레벨 성장 · 스킬 · 해금 · 공용 기어</div>
+</header>
+
+<section class="panel">
+  <div class="controls">
+    <div><label for="character">캐릭터 선택</label>
+      <select id="character">
+        <option value="" selected>캐릭터를 선택하세요</option>
+        <option value="lars">라스 (No.1)</option>
+        <option value="airs">에어스 (Airs)</option>
+        <option value="winjet">윈제트 (Winjet)</option>
+      </select>
+    </div>
+    <div><label for="level">레벨 선택</label>
+      <select id="level">
+        <option value="1">Level 1</option><option value="2">Level 2</option>
+        <option value="3">Level 3</option><option value="4">Level 4</option>
+        <option value="5">Level 5</option><option value="6">Level 6</option>
+        <option value="7">Level 7</option><option value="8">Level 8</option>
+        <option value="9">Level 9</option><option value="10">Level 10</option>
+        <option value="G">Level G</option>
+      </select>
+    </div>
+    <div><label for="gadget">가젯 선택 (Lv.7+)</label>
+      <select id="gadget"></select>
+    </div>
+    <div>
+      <label for="gear1">첫 번째 기어 (Lv.8+)</label>
+      <select id="gear1" disabled>
+        <option value="">기어를 선택하세요</option>
+      </select>
+    </div>
+    <div><label for="godpower">갓 파워 선택 (Lv.9+)</label>
+      <select id="godpower"></select>
+    </div>
+    <div>
+      <label for="gear2">두 번째 기어 (Lv.10+)</label>
+      <select id="gear2" disabled>
+        <option value="">기어를 선택하세요</option>
+      </select>
+    </div>
+    <div><label for="hyper">하이퍼차지 상태</label>
+      <select id="hyper"><option value="off">비활성</option><option value="on">활성 (3턴)</option></select>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="characterInfo" hidden>
+  <div class="hero">
+    <div>
+      <h2 id="name"></h2>
+      <div id="description" class="muted"></div>
+      <div id="tags"></div>
+    </div>
+    <div class="pill" id="multiplier"></div>
+  </div>
+  <div class="stats" id="stats"></div>
+</section>
+
+<!-- 스킬 도감 -->
+<section class="panel" id="skillsPanel" hidden>
+  <h2>스킬 도감</h2>
+  <div class="grid" id="skills"></div>
+</section>
+
+<!-- 가젯 · 갓 파워 · 하이퍼차지 -->
+<section class="panel" id="extrasPanel" hidden>
+  <h2>가젯 · 갓 파워 · 하이퍼차지</h2>
+  <div class="grid" id="extras"></div>
+</section>
+
+<!-- 레벨 해금 -->
+<section class="panel" id="unlockPanel" hidden>
+  <h2>레벨 해금</h2>
+  <div id="unlock"></div>
+</section>
+
+<!-- 공용 기어 -->
+<section class="panel" id="gearsPanel" hidden>
+  <h2>공용 기어 도감</h2>
+  <div class="grid" id="gears"></div>
+</section>
+
+<!-- 전투 규칙 -->
+<section class="panel" id="rulesPanel">
+  <h2>전투 규칙 메모</h2>
+  <div class="note">
+    궁극기 게이지는 아군 전체가 공유한다. 실제 공격의 각 타격은 게이지를 10% 충전하며, 지원 기술은 충전하지 않는다.
+    지속 피해는 모든 아군의 행동이 끝난 뒤 발동한다. 해로운 효과 면역이 있는 적에게는 독·도발 등 해로운 효과가 적용되지 않는다.
+    아군 HP가 0이 되면 전투불능 상태가 되며, 사망으로 간주하지 않는다. 모든 아군이 전투불능 상태가 된다면, 전투는 패배하게 된다.
+  </div>
+</section>
+
+<footer>레고벤져스 팬메이드 도감 · 규칙 및 수치는 제공된 설정 기준</footer>
+</div>
+
+<script>
+const LEVELS = { "1":100, "2":105, "3":110, "4":115, "5":120, "6":125, "7":130, "8":135, "9":140, "10":145, "G":150 };
+const levelNames = { "1":"Level 1", "2":"Level 2", "3":"Level 3", "4":"Level 4", "5":"Level 5", "6":"Level 6", "7":"Level 7", "8":"Level 8", "9":"Level 9", "10":"Level 10", "G":"Level G" };
+const chars = {
+  lars: {
+    name:"라스 (No.1)", hp:5200, housing:6,
+    description:"기억을 잃은 채 케빈과 밥에게 발견된 라스는, 광역 공격과 방어 능력으로 동료를 지키며, 모험 속에서 잃어버린 과거와 존재의 의미를 찾아갑니다.",
+    skills:[
+      {type:"평타 1",name:"에리아 슬래시 (Area Slash)",desc:"광역 공격. 모든 적의 타게팅을 라스로 전환한다.",values:[["피해량",600]],notes:"도발은 해로운 효과이므로 면역 적에게는 적용되지 않는다."},
+      {type:"평타 2",name:"버닝 로켓 (Burning Rocket)",desc:"모든 적을 2회 공격한다.",values:[["1회 피해량",400],["타격 횟수",2]]},
+      {type:"지원기",name:"영원의 방패 (Eternal Shield)",desc:"모든 아군을 회복하고 보호막을 부여한다. 지정 아군의 모든 부정적 효과를 제거한다.",values:[["회복량", "라스 최대 HP의 20%"],["보호막", "30%"]]},
+      {
+        type:"궁극기",
+        name:"파르테논 브레이크 (Parthenon Break)",
+        desc:"최대 HP가 가장 높은 적, 현재 HP가 가장 높은 적, 현재 HP가 가장 낮은 적, 최대 HP가 가장 낮은 적에게 각각 피해를 준다. 한 적이 여러 조건에 해당하면 기본적으로 가장 높은 피해만 적용한다.",
+        values:[
+          ["최대 HP가 가장 높은 적",4000],
+          ["현재 HP가 가장 높은 적",3000],
+          ["현재 HP가 가장 낮은 적",2000],
+          ["최대 HP가 가장 낮은 적",1000]
+        ]
+      }
+    ],
+    gadgets:[
+      {name:"1만 마력 (10,000 Horsepower)",cd:7,desc:"발동 턴에 모든 평타 피해량이 4배가 되고 궁극기 피해량은 2배가 된다."},
+      {name:"단일 저격 (Single Shot)",cd:5,desc:"발동 턴에 모든 평타가 단일 대상 공격이 된다. 피해량은 원래 평타 피해량 × 적의 수."}
+    ],
+    gods:[
+      {name:"와일드 CPU (Wild CPU)",desc:"HP가 40% 이하일 때 가하는 피해량이 60% 이하로 감소한다. 이 상태에서는 가젯을 사용할 수 없다."},
+      {name:"터프 컴퓨터 (Tough Computer)",desc:"HP가 40% 이하일 때 받는 피해량이 40% 감소한다."}
+    ],
+    hyper:{name:"신의 결단 (God's Determination)",desc:"3턴 동안 가하는 피해 +20%, 받는 회복량 +20%, 받는 피해 -10%. 궁극기의 중첩 제한을 제거해 조건별 피해를 누적한다.",extra:"Level G에서 한 적이 네 조건을 모두 만족하면 15000 피해."}
+  },
+  airs: {
+    name:"에어스 (Airs)",hp:2800,housing:1,
+    description:"독과 분신, 강력한 사이킥 파워를 다루는 에어스는 특수한 능력으로 전황을 뒤바꾸며, 혼란에 빠진 세계에서 자신의 힘으로 운명을 개척합니다.",
+    skills:[
+      {type:"평타 1",name:"죽음의 연기, 포이즌 가스! (Poison Gas)",desc:"모든 적에게 광역 피해를 주고 지정 대상에게 독 지속 피해를 부여한다.",values:[["광역 피해",800],["독 피해",200],["지속 시간","3턴"]],notes:"지속 피해는 모든 아군의 턴이 끝난 뒤 발동한다. 해로운 효과 면역 적에게는 독이 적용되지 않는다."},
+      {type:"평타 2",name:"강력한 물대포, 파워 워터젯! (Acid Waterjet)",desc:"단일 적을 공격한다.",values:[["피해량",1000]]},
+      {type:"지원기",name:"복제해라, 클론 아바타! (Clone Avatar)",desc:"지정 아군의 분신 4마리를 소환한다. 분신은 본체의 추가 효과가 없는 공격 기술을 사용하며, 기본 피해량은 본체의 50%다.",values:[["분신 수",4],["분신 기본 HP",100],["공격 피해 비율","50%"]],notes:"분신 HP도 레고 레벨 배율을 적용한다. Perfect Replication 선택 시 공격 피해 비율은 70%."},
+      {type:"궁극기",name:"정의의 7개의 광선, 사이킥 파워! (Psychic Power)",desc:"현재 HP가 제거 기준 이하인 모든 적을 삭제한다. 기준을 초과한 적에게는 피해가 0이다.",values:[["Lv.1 제거 기준",30000]],notes:"제거 기준도 레벨 배율을 적용하며, 하이퍼차지 중에는 기준이 2배가 된다."}
+    ],
+    gadgets:[
+      {name:"분신 강화! (Clone Enforcement)",cd:4,desc:"분신의 HP를 영구적으로 20배 강화한다. 예: 100 → 2000."},
+      {name:"도트 리셋 (Dot Reset)",cd:5,desc:"지속 피해의 남은 지속 시간을 3턴으로 초기화한다."}
+    ],
+    gods:[
+      {name:"독성 지배 (Toxic Dominion)",desc:"지속 피해량이 20% 증가한다."},
+      {name:"완전 복제 (Perfect Replication)",desc:"Clone Avatar 분신의 공격 피해 비율이 본체의 50%에서 70%로 증가한다."}
+    ],
+    hyper:{name:"절대 심판 (Absolute Judgment)",desc:"3턴 동안 가하는 피해 +20%, 받는 회복량 +20%, 받는 피해 -10%.",extra:"고유 효과: Psychic Power의 제거 기준이 하이퍼차지 지속 중 2배가 된다."}
+  },
+  winjet: {
+    name:"윈제트 (Winjet)",hp:2200,housing:1,
+    description:"니트로 차지와 스톰 블로우로 적을 압박하는 윈제트는 동료를 보호하고 궁극기를 거듭 강화하며, 한계를 넘어 숨겨진 잠재력을 깨워 간다.",
+    skills:[
+      {type:"평타 1",name:"니트로 차지 (Flame Charge)",desc:"모든 적에게 광역 피해를 준다.",values:[["피해량",900]],notes:"하이퍼차지로 5단계가 되면 니트로 차지가 광역 공격으로 변한다는 설정을 그대로 표시한다. 기본 스킬 설명도 광역으로 제공된 상태."},
+      {type:"평타 2",name:"스톰 어택 (Storm Attack)",desc:"광역 공격을 하며, 가장 많은 피해를 입은 아군을 윈제트 최대 HP의 40%만큼 회복한다.",values:[["피해량",600],["회복량","윈제트 최대 HP의 40%"]]},
+      {type:"지원기",name:"윈드 서포트 (Wind Support)",desc:"지정 대상에게 50% 보호막, 나머지 아군에게 40% 보호막을 부여한다. 해당 턴에만 지속된다.",values:[["지정 대상 보호막","50%"],["다른 아군 보호막","40%"],["지속 시간","해당 턴"]]},
+      {type:"궁극기",name:"발전 (Evolve!)",desc:"사용할 때마다 진화 단계를 올리며 피해를 준다.",values:[["궁극기 피해량",2500]],notes:"2단계: 최대 HP +20%. 3단계: 회복 비율 40%→60%. 4단계: 모든 피해 +20%. 하이퍼차지 시 5단계 해금."}
+    ],
+    gadgets:[
+      {name:"애프터버너 (Afterburner)",cd:4,desc:"해당 턴에 사용하는 다음 공격 스킬의 피해량 +50%, 광역 공격에도 적용된다."},
+      {name:"회피 비행 (Evasive Flight)",cd:5,desc:"해당 턴에 받는 피해량이 50% 감소한다."}
+    ],
+    gods:[
+      {name:"진화 가속 (Evolution Accelerator)",desc:"궁극기 단계가 2단계 이상이면 모든 공격 피해량이 추가로 15% 증가한다."},
+      {name:"재도약 (Second Takeoff)",desc:"전투불능 상태에서 부활하면, 이전 단계와 관계없이 2단계로 부활한다."}
+    ],
+    hyper:{name:"초진화비행 (Hyper Flight)",desc:"공통 하이퍼차지 효과: 3턴 동안 가하는 피해 +20%, 받는 회복량 +20%, 받는 피해 -10%.",extra:"고유 효과: 5단계가 해금되며, 니트로 차지가 광역 공격으로 변한다."}
+  }
+};
+const gears = [
+  ["파쇄 기어","5턴에 1회, 마스크드의 피해 감소 조건을 뚫고 공격한다."],
+  ["관통 기어","5턴에 1회, 닌자의 1회 피격 피해 상한을 뚫고 공격한다."],
+  ["봉인 기어","장착자가 공격으로 언데드를 직접 처치하면 부활 대기 턴을 1턴 연장한다."],
+  ["평정 기어","와일드 에너미에게 공격받을 때, 궁극기 게이지로 추가된 피해를 제외하고 기본 피해만 받는다."],
+  ["교란 기어","면역으로 무시한 해로운 효과 하나당 최대 HP의 5%를 회복한다."],
+  ["반환 기어","위저드가 장착자를 공격할 때마다 공통 궁극기 게이지를 15% 충전한다."]
+];
+
+function populateGearSelects(level, isSelected) {
+  const gear1 = document.getElementById("gear1");
+  const gear2 = document.getElementById("gear2");
+
+  const numericLevel = level === "G" ? 11 : Number(level);
+  const oldGear1 = gear1.value;
+  const oldGear2 = gear2.value;
+
+  // 첫 번째 슬롯은 Lv.8부터, 두 번째 슬롯은 Lv.10부터 해금
+  gear1.disabled = !isSelected || numericLevel < 8;
+  gear2.disabled = !isSelected || numericLevel < 10;
+
+  const selectedGearCount = [
+    gear1,
+    gear2
+  ].filter(value => value !== "").length;
+
+  const maxGearSlots =
+    numericLevel >= 10 ? 2 :
+    numericLevel >= 8 ? 1 : 0;
+
+  const slotsFull =
+    maxGearSlots > 0 &&
+    selectedGearCount >= maxGearSlots;
+    
+  // 기어 목록 생성
+  const options = gears.map((gear, index) =>
+    `<option value="${index}">${gear[0]}</option>`
+  ).join("");
+
+  gear1.innerHTML =
+    '<option value="">기어를 선택하세요</option>' + options;
+
+  gear2.innerHTML =
+    '<option value="">기어를 선택하세요</option>' + options;
+
+  // 해금된 슬롯의 기존 선택 유지
+  if (isSelected && numericLevel >= 8) {
+    gear1.value = oldGear1;
+  } else {
+    gear1.value = "";
+  }
+
+  if (isSelected && numericLevel >= 10) {
+    gear2.value = oldGear2;
+  } else {
+    gear2.value = "";
+  }
+
+  // 두 슬롯에 같은 기어가 중복 선택되지 않도록 처리
+  if (gear1.value !== "" && gear1.value === gear2.value) {
+    gear2.value = "";
+  }
+}
+
+function round(n) { return Math.round(n + Number.EPSILON); }
+function scale(n, mult) { return round(n * mult / 100); }
+function valText(v, mult) {
+  if (typeof v === "number") return scale(v, mult).toLocaleString("ko-KR");
+  return String(v);
+}
+function skillHTML(skill, mult, charKey, level) {
+  const vals = (skill.values || []).map(([label,value]) => {
+    let shown = value;
+    if (typeof value === "number") shown = valText(value,mult);
+    else if (charKey==="lars" && skill.type==="지원기" && label==="회복량") shown = `${scale(chars.lars.hp * 0.2,mult).toLocaleString("ko-KR")} HP`;
+    else if (charKey==="airs" && skill.type==="지원기" && label==="분신 기본 HP") shown = scale(100,mult).toLocaleString("ko-KR");
+    else if (charKey==="airs" && skill.type==="궁극기" && label==="Lv.1 제거 기준") shown = scale(30000,mult).toLocaleString("ko-KR");
+    else if (charKey==="winjet" && skill.type==="평타 2" && label==="회복량") shown = `${scale(chars.winjet.hp * 0.4,mult).toLocaleString("ko-KR")} HP`;
+    return `<span class="pill">${label}: ${shown}</span>`;
+  }).join("");
+  let desc = skill.desc;
+  if (charKey==="lars" && skill.type==="궁극기" && document.getElementById("hyper").value==="on") {
+    desc += " 하이퍼차지 활성: 조건별 피해가 중첩된다.";
+  }
+  if (charKey==="airs" && skill.type==="궁극기" && document.getElementById("hyper").value==="on") {
+    desc += ` 현재 제거 기준: ${scale(30000,mult)*2}`.toLocaleString("ko-KR");
+  }
+  return `<article class="card"><div class="kind">${skill.type}</div><h3>${skill.name}</h3><p>${desc}</p><div>${vals}</div>${skill.notes?`<p class="muted">${skill.notes}</p>`:""}</article>`;
+}
+function populateSelect(id, items, placeholder) {
+  const select = document.getElementById(id);
+  const old = select.value;
+  select.innerHTML = `<option value="">${placeholder}</option>` + items.map((item,i)=>`<option value="${i}">${item.name}</option>`).join("");
+  if (old !== "" && Number(old) < items.length) select.value = old;
+}
+function render() {
+  const key = document.getElementById("character").value;
+  const isSelected = key !== "";
+
+  populateGearSelects(
+    document.getElementById("level").value,
+    isSelected
+  );
+
+  // 캐릭터 정보 영역 표시 여부
+  const panels = [
+    "characterInfo",
+    "skillsPanel",
+    "extrasPanel",
+    "unlockPanel",
+    "gearsPanel"
+  ];
+
+  panels.forEach(id => {
+    document.getElementById(id).hidden = !isSelected;
+  });
+
+  // 캐릭터 선택 여부에 따라 선택창 활성화
+  document.getElementById("gadget").disabled = !isSelected;
+  document.getElementById("godpower").disabled = !isSelected;
+  document.getElementById("hyper").disabled = !isSelected;
+
+  // 캐릭터가 선택되지 않았다면 하이퍼차지도 초기화하고 종료
+  if (!isSelected) {
+    document.getElementById("gadget").value = "";
+    document.getElementById("godpower").value = "";
+    document.getElementById("hyper").value = "off";
+    return;
+  }
+
+  // 여기부터는 기존 render() 코드
+  const level = document.getElementById("level").value;
+  const hyperOn =
+    document.getElementById("hyper").value === "on";
+
+  const c = chars[key];
+  const mult = LEVELS[level];
+  const numericLevel = level === "G" ? 11 : Number(level);
+
+  // ↓ 이 아래에 기존 render()의 나머지 코드를 그대로 둔다.
+  populateSelect("gadget", c.gadgets, "가젯 선택");
+  populateSelect("godpower", c.gods, "갓 파워 선택");
+  document.getElementById("gadget").disabled = numericLevel < 7;
+  document.getElementById("godpower").disabled = numericLevel < 9;
+  document.getElementById("hyper").disabled = level !== "G";
+  if (level !== "G") document.getElementById("hyper").value = "off";
+
+  document.getElementById("name").textContent = c.name;
+  document.getElementById("description").textContent = c.description;
+  document.getElementById("multiplier").textContent = `${levelNames[level]} · 능력치 ${mult}%`;
+  document.getElementById("tags").innerHTML = `<span class="pill">Housing Space ${c.housing}</span><span class="pill">기본 HP ${scale(c.hp,mult).toLocaleString("ko-KR")}</span>${numericLevel>=8?'<span class="pill">기어 슬롯 1 해금</span>':""}${numericLevel>=10?'<span class="pill">기어 슬롯 2 해금</span>':""}`;
+
+  const stats = [["최대 HP",scale(c.hp,mult)],["하우징 스페이스",c.housing],["레벨 배율",`${mult}%`]];
+  if (key==="lars") stats.push(["Area Slash",`${scale(600,mult).toLocaleString("ko-KR")} / 적`],["Burning Rocket",`${scale(400,mult).toLocaleString("ko-KR")} × 2`],["Eternal Shield 회복",`${scale(c.hp*0.2,mult).toLocaleString("ko-KR")} HP`],["Parthenon Break",hyperOn?"조건별 피해 누적":"중첩 시 최고 피해만"]);
+  if (key==="airs") stats.push(["Poison Gas",`${scale(800,mult).toLocaleString("ko-KR")} 광역`],["독 지속 피해",`${scale(200,mult).toLocaleString("ko-KR")} × 3턴`],["분신 HP",scale(100,mult)],["Psychic Power 기준",`${scale(30000,mult).toLocaleString("ko-KR")}${hyperOn?" × 2":""}`]);
+  if (key==="winjet") stats.push(["Nitro Charge",`${scale(900,mult).toLocaleString("ko-KR")} 광역`],["Storm Attack",`${scale(600,mult).toLocaleString("ko-KR")} 광역`],["Storm Attack 회복",`${scale(c.hp*0.4,mult).toLocaleString("ko-KR")} HP`],["Evolve! 피해",scale(2500,mult)]);
+  if (hyperOn) stats.push(["하이퍼차지 피해 보너스","+20%"],["하이퍼차지 받는 피해","-10%"],["하이퍼차지 지속","3턴"]);
+  document.getElementById("stats").innerHTML = stats.map(([a,b])=>`<div class="stat"><small>${a}</small><strong>${b}</strong></div>`).join("");
+
+  document.getElementById("skills").innerHTML = c.skills.map(s=>skillHTML(s,mult,key,level)).join("");
+  const gadget = document.getElementById("gadget").value;
+  const god = document.getElementById("godpower").value;
+  let extras = [];
+  c.gadgets.forEach((g,i)=>extras.push({category:`가젯 ${i+1} · 쿨타임 ${g.cd}턴`,name:g.name,desc:g.desc,unlocked:numericLevel>=7,selected:gadget===String(i)}));
+  c.gods.forEach((g,i)=>extras.push({category:`갓 파워 ${i+1}`,name:g.name,desc:g.desc,unlocked:numericLevel>=9,selected:god===String(i)}));
+  extras.push({category:"하이퍼차지",name:c.hyper.name,desc:c.hyper.desc+" "+c.hyper.extra,unlocked:level==="G",selected:hyperOn});
+  document.getElementById("extras").innerHTML = extras.map(x=>`<article class="card"><div class="kind">${x.category}</div><h3>${x.name}</h3><p>${x.desc}</p><div class="status ${x.unlocked?"unlocked":"locked"}">${x.unlocked?(x.selected?"✓ 선택됨":"✓ 해금됨"):"🔒 아직 해금되지 않음"}</div></article>`).join("");
+
+  const unlocks = [
+    [7,"가젯 2종"],[8,"첫 번째 기어 슬롯"],[9,"갓 파워 2종"],[10,"두 번째 기어 슬롯"],[11,"하이퍼차지"]
+  ];
+  document.getElementById("unlock").innerHTML = unlocks.map(([lv,name])=>{
+    const isOn=numericLevel>=lv, label=lv===11?"Level G":`Level ${lv}`;
+    return `<div class="status ${isOn?"unlocked":"locked"}">${isOn?"✓":"🔒"} ${label}: ${name} ${isOn?"해금":"잠김"}</div>`;
+  }).join("");
+// 공용 기어 도감: 해금 여부와 장착 상태 표시
+const gear1Value = document.getElementById("gear1").value;
+const gear2Value = document.getElementById("gear2").value;
+
+const selectedGearCount = [gear1Value, gear2Value].filter(
+  value => value !== ""
+).length;
+
+const maxGearSlots =
+  numericLevel >= 10 ? 2 :
+  numericLevel >= 8 ? 1 : 0;
+
+const slotsFull =
+  maxGearSlots > 0 &&
+  selectedGearCount >= maxGearSlots;
+
+document.getElementById("gears").innerHTML = gears.map(
+  ([name, desc], i) => {
+    const unlocked = numericLevel >= 8;
+    const selected1 = unlocked && gear1Value === String(i);
+    const selected2 = numericLevel >= 10 && gear2Value === String(i);
+    const isSelected = selected1 || selected2;
+
+    let statusHTML = "";
+
+    if (!unlocked) {
+      statusHTML = `
+        <div class="status locked">
+          🔒 잠김 · 첫 번째 기어는 Lv.8부터 해금
+        </div>`;
+    } else if (selected1 && selected2) {
+      statusHTML = `
+        <div class="status unlocked">
+          ✓ 선택됨 · 슬롯 1, 슬롯 2
+        </div>`;
+    } else if (selected1) {
+      statusHTML = `
+        <div class="status unlocked">
+          ✓ 선택됨 · 슬롯 1
+        </div>`;
+    } else if (selected2) {
+      statusHTML = `
+        <div class="status unlocked">
+          ✓ 선택됨 · 슬롯 2
+        </div>`;
+    } else if (slotsFull) {
+      statusHTML = `
+        <div class="status locked">
+          🔒 잠김 · 기어 슬롯이 꽉 참
+        </div>`;
+    } else {
+      statusHTML = `
+        <div class="status unlocked">
+          ✓ 해금됨 · 선택 안 됨
+        </div>`;
+    }
+
+    return `
+      <article class="card">
+        <h3 class="gear-name">${name}</h3>
+        <p>${desc}</p>
+        ${statusHTML}
+      </article>`;
+  }
+).join("");
+}
+document.getElementById("character").addEventListener("change", () => {
+  // 캐릭터를 바꿀 때 레벨을 Level 1로 초기화
+  document.getElementById("level").value = "1";
+
+  // 가젯, 갓 파워, 하이퍼차지도 초기화
+  document.getElementById("gadget").value = "";
+  document.getElementById("godpower").value = "";
+  document.getElementById("hyper").value = "off";
+
+  // 변경된 상태로 화면 갱신
+  render();
+});
+document.getElementById("level").addEventListener("change",render);
+document.getElementById("gadget").addEventListener("change",render);
+document.getElementById("godpower").addEventListener("change",render);
+document.getElementById("gear1").addEventListener("change",render);
+document.getElementById("gear2").addEventListener("change",render);
+document.getElementById("hyper").addEventListener("change",render);
+render();
+</script>
+</body>
+</html>
